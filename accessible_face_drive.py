@@ -310,7 +310,7 @@ class AccessibleHeadControlledDriving:
 
             # Text
             cv2.putText(frame, "CALIBRATION EN COURS", (width//2 - 200, 40),
-                       cv2.FONT_HERSHEY_BOLD, 1, (0, 255, 255), 2)
+                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 3)
             cv2.putText(frame, "Maintenez votre tete en position neutre", (width//2 - 280, 80),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
             cv2.putText(frame, f"Temps restant: {remaining:.1f}s", (width//2 - 150, 120),
@@ -351,7 +351,7 @@ class AccessibleHeadControlledDriving:
                 cv2.rectangle(frame, (kx - key_size//2, ky - key_size//2),
                             (kx + key_size//2, ky + key_size//2), color, -1 if key in self.last_active_keys else 2)
                 cv2.putText(frame, key.upper(), (kx - 15, ky + 10),
-                           cv2.FONT_HERSHEY_BOLD, 1, (255, 255, 255), 2)
+                           cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
 
         # Draw FPS and status
         if self.config['ui']['show_fps']:
