@@ -1,0 +1,45 @@
+{
+  "calibration": {
+    "duration_seconds": 3,
+    "neutral_position": null
+  },
+  "sensitivity": {
+    "horizontal": 30,
+    "vertical": 30,
+    "adaptive": true
+  },
+  "dead_zone": {
+    "horizontal": 15,
+    "vertical": 20
+  },
+  "smoothing": {
+    "enable_kalman": true,
+    "enable_ema": true,
+    "ema_alpha": 0.3,
+    "kalman_R": 0.5,
+    "kalman_Q": 0.5
+  },
+  "control_mode": "position",
+  "safety": {
+    "enable_auto_pause": true,
+    "pause_delay_seconds": 3,
+    "mouth_open_pause": false
+  },
+  "ui": {
+    "show_calibration_guide": true,
+    "show_dead_zone": true,
+    "show_active_keys": true,
+    "show_fps": true,
+    "mirror_video": true
+  },
+  "keys": {
+    "forward": "z",
+    "backward": "s",
+    "left": "q",
+    "right": "d"
+  },
+  "logging": {
+    "enable": true,
+    "log_file": "driving_sessions.csv"
+  }
+}
