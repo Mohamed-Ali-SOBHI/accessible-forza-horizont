@@ -1,4 +1,9 @@
 {
+  "camera": {
+    "index": -1,
+    "auto_select": true,
+    "show_preview": true
+  },
   "calibration": {
     "duration_seconds": 3,
     "neutral_position": null

@@ -14,8 +14,10 @@ class AccessibleHeadControlledDriving:
         # Load configuration
         self.config = self.load_config(config_file)
 
-        # Initialize hardware
-        self.camera_handler = CameraHandler()
+        # Initialize hardware with camera selection
+        camera_index = self.config.get('camera', {}).get('index', -1)
+        print(f"\nConfiguration camera: index={camera_index}")
+        self.camera_handler = CameraHandler(camera_index=camera_index)
         self.face_detector = FaceDetector(self.camera_handler)
 
         # Screen and window setup
@@ -433,6 +435,15 @@ class AccessibleHeadControlledDriving:
     def run(self):
         """Main loop"""
         try:
+            # Save selected camera index to config
+            if self.camera_handler.camera_index != -1:
+                if 'camera' not in self.config:
+                    self.config['camera'] = {}
+                if self.config['camera'].get('index') != self.camera_handler.camera_index:
+                    self.config['camera']['index'] = self.camera_handler.camera_index
+                    self.save_config()
+                    print(f"Camera {self.camera_handler.camera_index} sauvegardee dans la configuration")
+
             # Start calibration
             self.start_calibration()
 

@@ -345,7 +345,60 @@ Ouvrez le fichier `config.json` avec un éditeur de texte :
 
 ---
 
+## 📷 Sélection de Caméra (Nouveau!)
+
+### Si vous avez plusieurs caméras
+
+Le système détecte automatiquement la meilleure caméra disponible, mais vous pouvez choisir manuellement :
+
+**Option 1 : Automatique** (par défaut)
+- Le système teste toutes les caméras
+- Choisit celle avec le meilleur score de qualité
+- Sauvegarde le choix dans `config.json`
+
+**Option 2 : Manuelle**
+1. Ouvrez `config.json`
+2. Modifiez `"camera": {"index": X}` où X est 0, 1, 2, etc.
+3. Relancez le programme
+
+**Exemples** :
+```json
+// Détection automatique
+"camera": {"index": -1}
+
+// Utiliser caméra 0
+"camera": {"index": 0}
+
+// Utiliser caméra 1
+"camera": {"index": 1}
+```
+
+**Comment savoir quel index ?**
+Le programme affiche au démarrage :
+```
+[0] Camera trouvee - Resolution: 640x480 @ 30fps
+[1] Camera trouvee - Resolution: 1920x1080 @ 30fps
+Meilleure camera: 1 (score: 0.85)
+```
+
+---
+
 ## 🔧 Dépannage
+
+### 📷 Mauvaise caméra sélectionnée
+
+**Problème** : Le système choisit une caméra occupée ou mauvaise
+
+**Solutions** :
+1. Fermez les applications utilisant la webcam (Skype, Teams, Zoom)
+2. Spécifiez manuellement la caméra dans `config.json` :
+```json
+"camera": {"index": 1}  // Essayez 0, 1, 2, etc.
+```
+3. Relancez le programme
+4. La caméra choisie sera mémorisée
+
+---
 
 ### ❌ "No available camera"
 
@@ -481,6 +534,12 @@ Ouvrez le fichier `config.json` avec un éditeur de texte :
 
 ```json
 {
+  "camera": {
+    "index": -1,                     // Index de caméra (-1 = auto, 0-9 = caméra spécifique)
+    "auto_select": true,             // Détection automatique de la meilleure caméra
+    "show_preview": true             // Afficher aperçu lors de la sélection
+  },
+
   "calibration": {
     "duration_seconds": 3,           // Durée de calibration (secondes)
     "neutral_position": null         // Position neutre (auto-calculée)
