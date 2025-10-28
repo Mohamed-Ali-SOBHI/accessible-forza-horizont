@@ -43,6 +43,19 @@ class CameraHandler:
         if self.cap is not None:
             self.configure_camera(self.preferred_resolution, self.preferred_fps)
 
+    @staticmethod
+    @staticmethod
+    def list_static(max_cameras=10):
+        available = []
+        for i in range(max_cameras):
+            cap = cv2.VideoCapture(i)
+            if cap.isOpened():
+                ret, _ = cap.read()
+                if ret:
+                    available.append(i)
+            cap.release()
+        return available
+
     def list_available_cameras(self):
         """
         Probe all cameras and return available indices.

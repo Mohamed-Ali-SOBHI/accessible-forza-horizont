@@ -27,6 +27,8 @@ class SimpleHeadControlledDrive:
         calibration_seconds: float = 2.0,
         mirror_horizontal: bool = True,
         cruise_mode: str = 'continuous',
+        status_callback=None,
+        camera_override: int = -1,
     ) -> None:
         self.forward_key = forward_key
         self.backward_key = backward_key
@@ -35,11 +37,13 @@ class SimpleHeadControlledDrive:
         self.calibration_seconds = calibration_seconds
         self.mirror_horizontal = mirror_horizontal
         self.cruise_mode = cruise_mode  # 'continuous' or 'pulsed'
+        self.status_callback = status_callback
+        self.camera_override = camera_override
 
         self.camera = None
         self._camera_kwargs = {
-            "camera_index": -1,
-            "prompt_on_multiple": True,
+            "camera_index": camera_override,
+            "prompt_on_multiple": camera_override == -1,
         }
         self.face_mesh = mp.solutions.face_mesh.FaceMesh(
             max_num_faces=1,
@@ -82,6 +86,15 @@ class SimpleHeadControlledDrive:
         self._steer_on_duration = self.steer_pulse_base
         self._steer_off_duration = self.steer_pulse_base
 
+        self.stop_requested = False
+
+    def _notify(self, event, **payload):
+        if self.status_callback:
+            try:
+                self.status_callback(event, payload)
+            except Exception:
+                pass
+
     # --------------------------------------------------------------------- #
     # Main control flow
     # --------------------------------------------------------------------- #
@@ -89,12 +102,19 @@ class SimpleHeadControlledDrive:
     def run(self) -> None:
         try:
             self._initialize_camera()
+            self._notify("app", state="camera_ready")
 
             while True:
+                if self.stop_requested:
+                    break
+
                 if not self._calibrate():
                     if not self._handle_calibration_failure():
                         break
                     continue
+
+                if self.stop_requested:
+                    break
 
                 self._loop()
                 break
@@ -120,11 +140,14 @@ class SimpleHeadControlledDrive:
         if response == 'c':
             print("\nSelecting camera...")
             self._initialize_camera()
+            self._notify("app", state="camera_ready")
         return True
 
     def _calibrate(self) -> bool:
+        self.stop_requested = False
         print("\n=== CALIBRATION ===")
         print("Keep your head straight, mouth closed, and relaxed for a few seconds...")
+        self._notify("calibration", stage="start")
 
         centers = []
         widths = []
@@ -135,6 +158,8 @@ class SimpleHeadControlledDrive:
         last_frame = np.zeros((480, 640, 3), dtype=np.uint8)
 
         while time.time() - start_time < self.calibration_seconds:
+            if self.stop_requested:
+                return False
             success, frame, metrics = self._capture_metrics()
             if frame is not None:
                 last_frame = frame
@@ -154,6 +179,7 @@ class SimpleHeadControlledDrive:
         if not centers:
             self._show_frame(last_frame, "Calibration failed - no face detected")
             cv2.waitKey(500)
+            self._notify("calibration", stage="failed")
             return False
 
         centers = np.array(centers)
@@ -190,6 +216,7 @@ class SimpleHeadControlledDrive:
         print(f"  Head-up brake threshold (pixels): {self.brake_threshold:.1f}")
 
         self._show_frame(last_frame, "Calibration OK - ready!")
+        self._notify("calibration", stage="complete")
         cv2.waitKey(500)
 
         self._cruise_state = True
@@ -210,6 +237,8 @@ class SimpleHeadControlledDrive:
         last_state = {"steer": "center:0", "motion": "idle"}
 
         while True:
+            if self.stop_requested:
+                break
             success, frame, metrics = self._capture_metrics()
 
             if not success:
@@ -275,6 +304,7 @@ class SimpleHeadControlledDrive:
 
             status_text = f"Head: {steer_label} | Motion: {motion_label}"
             self._show_frame(frame, status_text)
+            self._notify("status", text=status_text, motion=motion, steer=steer_label)
 
             steer_state_repr = f"{steer_direction}:{int(steer_intensity * 100)}"
             motion_state_repr = (
@@ -290,6 +320,10 @@ class SimpleHeadControlledDrive:
                 break
 
             time.sleep(0.01)
+
+    def request_stop(self):
+        self.stop_requested = True
+        self._notify("app", state="stop_requested")
 
     # --------------------------------------------------------------------- #
     # Metrics & helpers
@@ -471,6 +505,7 @@ class SimpleHeadControlledDrive:
             self.face_mesh.close()
         cv2.destroyAllWindows()
         pyautogui.FAILSAFE = self.original_failsafe
+        self._notify("app", state="stopped")
         print("\nCleanup complete. Goodbye!")
 
 

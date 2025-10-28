@@ -1,272 +1,90 @@
-# 🎮 Conduite Accessible par Mouvements de Tête
+# Simple Head Drive pour Forza Horizon
 
-Système pour conduire dans les jeux vidéo (Forza, Gran Turismo, etc.) **uniquement avec votre tête et expressions faciales** - optimisé pour personnes tétraplégiques.
+Ce projet propose une passerelle entre les mouvements de tete et les commandes clavier afin de rendre Forza Horizon plus accessible. Il s'appuie sur la detection de repere faciaux via MediaPipe, la capture video OpenCV et l'automatisation PyAutoGUI. L'application fournit une interface Tkinter simple pour choisir la camera, lancer la calibration et surveiller les evenements en direct.
 
----
+## Objectif
 
-## 🚀 Démarrage Ultra-Rapide
+Offrir une experience de conduite alternative pour les personnes qui ne peuvent pas utiliser une manette classique. Le systeme convertit simplement la posture de la tete et l'ouverture de la bouche en appuis clavier utilisables par le jeu.
 
-### 1. Installation (30 secondes)
-```bash
-pip install opencv-python mediapipe pyautogui numpy
-```
+## Fonctionnalites clefs
 
-### 2. Lancement
-```bash
-python enhanced_accessible_drive.py
-```
+- Calibration automatique de la position neutre du visage avant chaque session.
+- Acceleration proportionnelle a l'ouverture de la bouche, frein et marche arriere declenches par les mouvements verticaux de la tete.
+- Direction par rotations de la tete avec modulation pulsee pour imiter un stick analogique.
+- Interface Tkinter pour demarrer/arreter, choisir la camera et lire le journal d'evenements.
+- Gestion des claviers AZERTY par defaut (`z`, `s`, `q`, `d`) modifiable dans le code.
 
-### 3. Calibration (3 secondes)
-- Regardez la caméra
-- Gardez une expression neutre
-- Attendez "Calibration terminée!"
+## Materiel requis
 
-### 4. Jouer!
-- **Tournez la tête gauche/droite** → Direction du volant
-- **Clignez œil gauche** → Clignotant gauche
-- **Clignez œil droit** → Clignotant droit
-- **Ouvrez la bouche** → Frein d'urgence
-- **Touche P** → Pause
+- PC Windows avec Python 3.9 ou plus recent.
+- Webcam ou camera compatible OpenCV (USB ou integree).
+- Acces au jeu PC (Forza Horizon ou tout titre acceptant des commandes clavier).
+- Bonne luminosite pour faciliter la detection du visage.
 
-**C'est tout! Vous êtes prêt à jouer.**
-
----
-
-## ⌨️ Commandes Clavier
-
-| Touche | Action |
-|--------|--------|
-| **P** | Pause / Reprendre |
-| **C** | Recalibrer |
-| **A** | Changer niveau d'assistance (0→1→2→3) |
-| **B** | Pause (reset fatigue) |
-| **Q** | Quitter |
-
----
-
-## 🎯 Fonctionnalités Principales
-
-### ✅ Ce que ça fait
-- **Suivi 3D de la tête** - Précision maximale (yaw/pitch/roll)
-- **Gestes faciaux** - 6 commandes supplémentaires sans les mains
-- **Anti-tremblements** - Compense automatiquement les tremblements
-- **4 niveaux d'assistance** - Du débutant à l'expert
-- **Monitoring fatigue** - Vous alerte quand pause nécessaire
-
-### 🎚️ Niveaux d'Assistance (touche A)
-
-- **Niveau 0** : Contrôle direct (expert)
-- **Niveau 1** : Lissage léger (intermédiaire)
-- **Niveau 2** : Stabilisation avancée ⭐ **RECOMMANDÉ**
-- **Niveau 3** : Assistance maximum (débutant)
-
----
-
-## ⚙️ Configuration Simple
-
-### Fichier: `enhanced_config.json`
-
-#### Pour mobilité limitée
-```json
-"yaw_sensitivity": 20,        // Plus haut = moins sensible
-"driving_assistant": {
-  "level": 3                   // Assistance maximum
-}
-```
-
-#### Pour tremblements
-```json
-"advanced_filtering": {
-  "use_lowpass": true          // Active filtrage supplémentaire
-}
-```
-
----
-
-## 🔧 Problèmes Fréquents
-
-| Problème | Solution |
-|----------|----------|
-| **Trop sensible** | Appuyez sur **A** (augmente assistance) |
-| **Pas assez réactif** | Changez `yaw_sensitivity: 20→10` dans config |
-| **Tremblements visibles** | C'est géré automatiquement! |
-| **Gestes non détectés** | Appuyez sur **C** (recalibrer) |
-| **Latence** | Déjà optimisé (80ms au lieu de 150ms) |
-
----
-
-## 📁 Structure du Projet
-
-### Fichiers Importants
-```
-📁 accessible forza horizont/
-├─ enhanced_accessible_drive.py    ⭐ LANCER CELUI-CI
-├─ enhanced_config.json            ⚙️ Configuration
-├─ README.md                       📖 Ce fichier
-└─ test_modules.py                 🧪 Tester les modules
-```
-
-### Modules Techniques (8 fichiers)
-Les fichiers `advanced_*.py`, `facial_*.py`, etc. sont les modules automatiquement utilisés par le programme principal. **Pas besoin de les toucher.**
-
----
-
-## 📊 Résultats vs Version Basique
-
-| Métrique | Avant | Après | Amélioration |
-|----------|-------|-------|--------------|
-| Précision | 60% | 95% | **+58%** |
-| Latence | 150ms | 80ms | **-47%** |
-| Commandes | 4 | 10+ | **+150%** |
-| Tremblements | 100% | 20% | **-80%** |
-
----
-
-## 🎮 Compatibilité Jeux
-
-Fonctionne avec tous les jeux qui acceptent les touches **ZQSD** (ou WASD):
-- ✅ Forza Horizon (toutes versions)
-- ✅ Gran Turismo
-- ✅ Assetto Corsa
-- ✅ Tout jeu de course PC
-
----
-
-## 💡 Conseils d'Utilisation
-
-### 🎯 Première utilisation
-1. Commencez avec **assistance niveau 3** (touche A)
-2. Bon éclairage sur votre visage
-3. Sessions courtes (10-15 min) au début
-4. Respectez les pauses recommandées
-
-### 🔄 Progression
-1. **Semaine 1** : Assistance niveau 3, sessions 10-15 min
-2. **Semaine 2** : Réduire à niveau 2, sessions 20 min
-3. **Semaine 3+** : Niveau 1-2 selon confort
-
----
-
-## 🆘 Support
-
-### Le système ne démarre pas?
-```bash
-# Vérifier installation
-pip list | grep -E "opencv|mediapipe|pyautogui"
-
-# Réinstaller si besoin
-pip install opencv-python mediapipe pyautogui numpy
-```
-
-### Webcam non détectée?
-Le programme scanne automatiquement les caméras 0-9. Si problème, éditez `enhanced_config.json`:
-```json
-"camera": {
-  "index": 1    // Essayez 0, 1, 2, etc.
-}
-```
-
----
-
-## 📈 Profils Pré-Configurés
-
-Dans `enhanced_config.json`, section `"profiles"`:
-
-### 1. Bon contrôle de la tête
-```json
-"tetraplegic_high_mobility"
-```
-- Sensibilité élevée
-- Assistance minimale
-
-### 2. Mobilité limitée ⭐ RECOMMANDÉ
-```json
-"tetraplegic_limited_mobility"
-```
-- Sensibilité réduite
-- Assistance maximale
-- Filtrage renforcé
-
-### 3. Tremblements importants
-```json
-"tetraplegic_severe_tremors"
-```
-- Tous les filtres activés
-- Lissage maximum
-- Sensibilité très réduite
-
-**Pour utiliser un profil**: Copiez ses paramètres vers le haut du fichier config.
-
----
-
-## 🧪 Tester les Modules
+## Installation rapide
 
 ```bash
-python test_modules.py
+python -m venv .venv
+.venv\Scripts\activate
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-Menu interactif pour tester:
-- Détection pose 3D
-- Gestes faciaux
-- Filtres anti-tremblements
-- Prédiction mouvement
-- Etc.
+## Lancer l'application graphique
 
----
+```bash
+python app.py
+```
 
-## 📝 Technologies Utilisées
+1. Choisissez la camera si plusieurs options apparaissent.
+2. Appuyez sur **Start** pour demarrer la calibration.
+3. Suivez les consignes affichees (neutre, bouche fermee, visage bien centre).
+4. Une fois la calibration terminee, la fenetre de camera s'ouvre et vous pouvez piloter le jeu.
 
-- **MediaPipe** (Google) - Détection faciale 3D
-- **OpenCV** - Traitement vidéo
-- **Filtres avancés** - DES + Kalman adaptatif
-- **Prédiction mouvement** - Réduit latence de 47%
+Vous pouvez arreter a tout moment avec le bouton **Stop** ou en fermant la fenetre Tkinter.
 
-Basé sur recherches scientifiques 2024 en accessibilité.
+## Controle pas a pas
 
----
+- **Accelerer** : ouvrez la bouche. Plus l'ouverture est grande, plus `pyautogui` maintient la touche d'acceleration (`z` par defaut).
+- **Freiner** : relevez le menton (tete en arriere). Le systeme envoie la touche de frein (`s`).
+- **Marche arriere** : baissez nettement la tete. La meme touche `s` est envoyee de facon continue.
+- **Tourner** : regardez a gauche ou a droite. Un signal pulse reproduit un volant analogique, proportionnel au detournement de la tete.
+- **Maintien automatique** : une logique de "cruise control" gere la repetition des touches pour eviter les a-coups.
 
-## 🎯 Caractéristiques Accessibilité
+Gardez la camera a hauteur des yeux, face a vous, et evitez le contre-jour pour de meilleurs resultats.
 
-### ✅ Utilisable avec:
-- Mobilité tête réduite (±10° suffisant)
-- Tremblements pathologiques
-- Fatigue musculaire importante
-- Contrôle imprécis
+## Architecture du projet
 
-### ❌ Pas besoin de:
-- Mains fonctionnelles
-- Contrôle précis de la tête
-- Effort physique soutenu
-- Matériel spécialisé (juste webcam)
+```
+camera -> CameraHandler -> SimpleHeadControlledDrive -> pyautogui -> jeu
+                               |
+                               v
+                             DriveUI (Tkinter)
+```
 
----
+- `camera_handler.py` : detecte les cameras disponibles, configure la resolution et fournit les images.
+- `simple_head_drive.py` : coeur du controle. Exploite MediaPipe pour extraire des points du visage, calcule des seuils, pilote les touches clavier.
+- `app.py` : interface graphique, gestion de thread, affichage des evenements et pilotage du cycle de vie.
+- `requirements.txt` : dependances Python a installer.
 
-## 🏆 Versions
+## Personnalisation rapide
 
-### Version Basique
-- Fichier: `accessible_face_drive.py`
-- Simple, moins de fonctionnalités
-- Bon pour tester
+- **Touches** : changez les attributs `forward_key`, `backward_key`, `left_key`, `right_key` lors de la creation de `SimpleHeadControlledDrive` (ligne de demarrage dans `app.py` ou bloc `__main__` dans `simple_head_drive.py`).
+- **Camera** : passez `camera_override=<index>` a `SimpleHeadControlledDrive` ou fixez `camera_index` dans `CameraHandler`.
+- **Calibration** : ajustez `calibration_seconds`, `reverse_threshold`, `steer_dead_zone` si besoin de plus de tolerance.
+- **Mode de cruise** : la propriete `cruise_mode` accepte `continuous` ou `pulsed` pour modifier la facon d'envoyer la touche d'acceleration.
 
-### Version Améliorée ⭐ RECOMMANDÉ
-- Fichier: `enhanced_accessible_drive.py`
-- 8 modules avancés
-- Optimisé tétraplégie
-- **8x plus performant**
+## Conseils et bonnes pratiques
 
----
+- Laissez quelques secondes entre chaque mouvement pour que les seuils se stabilisent.
+- Evitez les mouvements parasites (parler, rire) pendant la phase de calibration.
+- Desactiver les raccourcis systeme conflictuels si une touche reste appuyee.
+- Testez d'abord hors du jeu pour verifier que les touches envoyees correspondent a vos attentes.
 
-## 📞 Questions?
+## Aller plus loin
 
-1. Relisez les sections "Problèmes Fréquents" et "Support" ci-dessus
-2. Testez avec `test_modules.py` pour identifier le problème
-3. Vérifiez `enhanced_config.json` (tout est commenté)
+- Ajouter un profil clavier pour differents jeux ou layouts (QWERTY, manette virtuelle).
+- Enregistrer les parametres de calibration pour eviter de recommencer a chaque session.
+- Integrer des retours sonores pour confirmer les changements de mode (frein, reverse, cruise).
 
----
-
-**🎮 Bon jeu! Profitez d'une conduite vraiment accessible!**
-
----
-
-*Version 2.0 Enhanced - Octobre 2024*
-*Optimisé pour personnes tétraplégiques et à mobilité réduite*
+Bon pilotage et bon jeu !
