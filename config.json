@@ -1,21 +1,24 @@
 {
   "camera": {
-    "index": -1,
+    "index": 1,
     "auto_select": true,
     "show_preview": true
   },
   "calibration": {
     "duration_seconds": 3,
-    "neutral_position": null
+    "neutral_position": {
+      "x": 371,
+      "y": 254
+    }
   },
   "sensitivity": {
-    "horizontal": 30,
-    "vertical": 30,
+    "horizontal": 5,
+    "vertical": 5,
     "adaptive": true
   },
   "dead_zone": {
-    "horizontal": 15,
-    "vertical": 20
+    "horizontal": 0,
+    "vertical": 0
   },
   "smoothing": {
     "enable_kalman": true,

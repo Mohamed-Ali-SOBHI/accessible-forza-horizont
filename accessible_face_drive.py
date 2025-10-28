@@ -15,13 +15,43 @@ class AccessibleHeadControlledDriving:
         self.config = self.load_config(config_file)
 
         # Initialize hardware with camera selection
-        camera_index = self.config.get('camera', {}).get('index', -1)
+        camera_config = self.config.get('camera', {})
+        camera_index = camera_config.get('index', -1)
+        preferred_resolution = None
+        if camera_config.get('width') and camera_config.get('height'):
+            preferred_resolution = (
+                int(camera_config['width']),
+                int(camera_config['height'])
+            )
+        preferred_fps = camera_config.get('fps')
+        prompt_on_multiple = not camera_config.get('auto_select', False)
+
         print(f"\nConfiguration camera: index={camera_index}")
-        self.camera_handler = CameraHandler(camera_index=camera_index)
+        if preferred_resolution:
+            print(f"Resolution demandee: {preferred_resolution[0]}x{preferred_resolution[1]}")
+        if preferred_fps:
+            print(f"FPS demandes: {preferred_fps}")
+
+        self.camera_handler = CameraHandler(
+            camera_index=camera_index,
+            prompt_on_multiple=prompt_on_multiple,
+            preferred_resolution=preferred_resolution,
+            preferred_fps=preferred_fps,
+        )
         self.face_detector = FaceDetector(self.camera_handler)
 
         # Screen and window setup
         self.screen_width, self.screen_height = pyautogui.size()
+
+        # PyAutoGUI safety configuration
+        pyauto_cfg = self.config.get('pyautogui', {})
+        self.original_pyautogui_failsafe = pyautogui.FAILSAFE
+        if 'failsafe' in pyauto_cfg:
+            pyautogui.FAILSAFE = bool(pyauto_cfg['failsafe'])
+            state = "activ\u00e9" if pyautogui.FAILSAFE else "d\u00e9sactiv\u00e9"
+            print(f"PyAutoGUI fail-safe {state} via configuration")
+        self.pyautogui_auto_recover = pyauto_cfg.get('auto_recover', True)
+        self.pyautogui_safe_margin = max(1, int(pyauto_cfg.get('safe_margin', 20)))
 
         # Calibration state
         self.calibrated = False
@@ -258,22 +288,64 @@ class AccessibleHeadControlledDriving:
         # Update key states
         self.update_key_states(active_keys)
 
+    def _recover_cursor_from_failsafe(self):
+        """Recenter the cursor when PyAutoGUI fail-safe triggers."""
+        if not self.pyautogui_auto_recover:
+            return
+
+        print("Avertissement: PyAutoGUI fail-safe d\u00e9clench\u00e9. R\u00e9alignement du curseur...")
+        previous_state = pyautogui.FAILSAFE
+        try:
+            pyautogui.FAILSAFE = False
+            center_x = max(
+                self.pyautogui_safe_margin,
+                min(self.screen_width - self.pyautogui_safe_margin, self.screen_width // 2)
+            )
+            center_y = max(
+                self.pyautogui_safe_margin,
+                min(self.screen_height - self.pyautogui_safe_margin, self.screen_height // 2)
+            )
+            pyautogui.moveTo(center_x, center_y, duration=0)
+        except Exception as err:
+            print(f"Impossible de recentrer automatiquement le curseur: {err}")
+        finally:
+            pyautogui.FAILSAFE = previous_state
+
+    def _perform_key_action(self, action, key):
+        """Execute a PyAutoGUI key action with fail-safe recovery."""
+        attempts = 2 if self.pyautogui_auto_recover else 1
+        action_name = getattr(action, "__name__", "action")
+
+        for attempt in range(attempts):
+            try:
+                action(key)
+                return True
+            except pyautogui.FailSafeException:
+                if not self.pyautogui_auto_recover:
+                    raise
+                if attempt == 0:
+                    self._recover_cursor_from_failsafe()
+                else:
+                    print(f"Impossible d'ex\u00e9cuter {action_name} sur '{key}' malgr\u00e9 la r\u00e9cup\u00e9ration.")
+                    return False
+        return False
+
     def update_key_states(self, active_keys):
         """Update keyboard states based on active keys"""
         # Release keys that are no longer active
         for key in self.last_active_keys - active_keys:
-            pyautogui.keyUp(key)
+            self._perform_key_action(pyautogui.keyUp, key)
 
         # Press new active keys
         for key in active_keys - self.last_active_keys:
-            pyautogui.keyDown(key)
+            self._perform_key_action(pyautogui.keyDown, key)
 
         self.last_active_keys = active_keys
 
     def release_all_keys(self):
         """Release all keyboard keys"""
         for key in self.last_active_keys:
-            pyautogui.keyUp(key)
+            self._perform_key_action(pyautogui.keyUp, key)
         self.last_active_keys.clear()
 
     def toggle_pause(self):
@@ -521,6 +593,7 @@ class AccessibleHeadControlledDriving:
             self.release_all_keys()
             self.save_session_log()
             self.save_config()
+            pyautogui.FAILSAFE = self.original_pyautogui_failsafe
             self.camera_handler.close()
             self.face_detector.close()
             self.face_mesh.close()
